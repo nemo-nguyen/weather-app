@@ -1,2 +1,4 @@
 requests
 pandas
+apache-airflow
+apache-airflow-providers-apache-spark
