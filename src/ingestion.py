@@ -1,5 +1,5 @@
 """
-Crawl data from NOAA API endpoint
+Crawl weather data from NOAA API endpoint
 """ 
 
 import requests
@@ -7,6 +7,9 @@ import os
 import csv
 import datetime
 import logging
+
+# Global variables
+now = datetime.datetime.now()
 
 # Set up logging
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +34,11 @@ class Ingestion:
         
         :param limit: The maximum number of records to retrieve (optional).
         """
+        # If limit is not provided, defaults to 10
+        if params.get("limit") is None:
+            params["limit"] = 10
+
+        # Set the default parameters
         self.params = params
         self.base_url = "https://api.weather.gov/"
         self.endpoint = None
@@ -97,7 +105,7 @@ class Ingestion:
                 # Extract the values from the row
                 values = [row.get(header, '') for header in self.headers if header != "ingestionDatetime"]
                 # Add ingestion time
-                values.append(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                values.append(now.strftime("%Y-%m-%d %H:%M:%S"))
                 writer.writerow(values)
         logging.info(f"Data saved to {file_path}")
 
@@ -167,16 +175,29 @@ class ObservationsIngestion(Ingestion):
             self.fetch_data()
         
 
-def main():
-    # Example usage
+def example():
+    """
+    Example usages of the Ingestion classes.
+    """
+    # Getting stations data in California
+    station_data = StationsIngestion(
+        params={"state": "CA"}
+        )
+    station_data.save_to_csv("stations.csv")
     
-    station_data = StationsIngestion(params={"state": "CA", "limit": 1})
-    station_ids = station_data.get_station_id()
-    # print(station_ids)
-
-    observation_data = ObservationsIngestion(station_id=station_ids, params={"start":"2025-05-02T04:00:00Z", "limit": 10})
-    # print(observation_data.data)
+    # Setting the start and end time for the observations
+    start = (now-datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    end = start.replace(hour=23, minute=59, second=59, microsecond=0)
+   
+   # Getting 100 observations of each station on the previous day
+    observation_data = ObservationsIngestion(
+        station_id = station_data.get_station_id(), 
+        params={
+            "start": start.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "end": end.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "limit": 100}
+        )
     observation_data.save_to_csv("observations.csv")
     
 if __name__ == "__main__":
-    main()
+    example()

@@ -1,0 +1,24 @@
+2025-05-02 07:49:05,617 - INFO - Fetching data from https://api.weather.gov/stations
+2025-05-02 07:49:06,058 - INFO - Data fetched successfully from https://api.weather.gov/stations
+2025-05-02 07:49:06,059 - INFO - Data saved to /home/nemo/projects/weather-app/src/../data/stations.csv
+2025-05-02 07:49:06,059 - INFO - Fetching data from https://api.weather.gov/stations/000PG/observations
+2025-05-02 07:49:07,187 - INFO - Data fetched successfully from https://api.weather.gov/stations/000PG/observations
+2025-05-02 07:49:07,188 - INFO - Fetching data from https://api.weather.gov/stations/000SE/observations
+2025-05-02 07:49:08,064 - INFO - Data fetched successfully from https://api.weather.gov/stations/000SE/observations
+2025-05-02 07:49:08,065 - INFO - Fetching data from https://api.weather.gov/stations/001PG/observations
+2025-05-02 07:49:08,216 - INFO - Data fetched successfully from https://api.weather.gov/stations/001PG/observations
+2025-05-02 07:49:08,216 - INFO - Fetching data from https://api.weather.gov/stations/001SE/observations
+2025-05-02 07:49:09,087 - INFO - Data fetched successfully from https://api.weather.gov/stations/001SE/observations
+2025-05-02 07:49:09,087 - INFO - Fetching data from https://api.weather.gov/stations/002PG/observations
+2025-05-02 07:49:09,715 - INFO - Data fetched successfully from https://api.weather.gov/stations/002PG/observations
+2025-05-02 07:49:09,716 - INFO - Fetching data from https://api.weather.gov/stations/002SE/observations
+2025-05-02 07:49:10,510 - INFO - Data fetched successfully from https://api.weather.gov/stations/002SE/observations
+2025-05-02 07:49:10,510 - INFO - Fetching data from https://api.weather.gov/stations/003PG/observations
+2025-05-02 07:49:11,244 - INFO - Data fetched successfully from https://api.weather.gov/stations/003PG/observations
+2025-05-02 07:49:11,244 - INFO - Fetching data from https://api.weather.gov/stations/003SE/observations
+2025-05-02 07:49:12,084 - INFO - Data fetched successfully from https://api.weather.gov/stations/003SE/observations
+2025-05-02 07:49:12,084 - INFO - Fetching data from https://api.weather.gov/stations/004PG/observations
+2025-05-02 07:49:12,800 - INFO - Data fetched successfully from https://api.weather.gov/stations/004PG/observations
+2025-05-02 07:49:12,801 - INFO - Fetching data from https://api.weather.gov/stations/004SE/observations
+2025-05-02 07:49:12,985 - INFO - Data fetched successfully from https://api.weather.gov/stations/004SE/observations
+2025-05-02 07:49:13,008 - INFO - Data saved to /home/nemo/projects/weather-app/src/../data/observations.csv
