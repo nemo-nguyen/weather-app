@@ -1,31 +1,16 @@
 """
 Crawl weather data from NOAA API endpoint
+API specification can be found at https://www.weather.gov/documentation/services-web-api#/default/tafs
 """ 
 
 import requests
 import os
 import csv
 import datetime
-import logging
+from utils import setup_logger, now, base_dir
 
-# Global variables
-now = datetime.datetime.now()
-
-# Set up logging
-base_dir = os.path.dirname(os.path.abspath(__file__))
-logs_dir = os.path.join(base_dir, "../logs")
-os.makedirs(logs_dir, exist_ok=True)  
-
-# Path to the log file
-log_file_path = os.path.join(logs_dir, "weather_ingestion.log")  
-
-logging.basicConfig(
-    filename=log_file_path,
-    level=logging.INFO, 
-    format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-
-logger = logging.getLogger(__name__)
+# Set up logger
+logger = setup_logger("weather_ingestion.log")
 
 class Ingestion:
     def __init__(self, params: dict = {"limit": 10}):
@@ -50,7 +35,7 @@ class Ingestion:
         """
         Get the data from the NOAA API.
         """
-        logging.info(f"Fetching data from {self.base_url}")
+        logger.info(f"Fetching data from {self.base_url}")
         
         response = requests.get(
             self.base_url,
@@ -66,9 +51,9 @@ class Ingestion:
             if self.data and not self.headers:
                 self.headers = [headers for headers in self.data[0].keys()]
             # Log the successful data retrieval
-            logging.info(f"Data fetched successfully from {self.base_url}")
+            logger.info(f"Data fetched successfully from {self.base_url}")
         else:
-            logging.error(f"Error: {response.status_code}, {response.reason}")
+            logger.error(f"Error: {response.status_code}, {response.reason}")
 
     
     def save_to_csv(self, filename, mode='w'):
@@ -80,12 +65,12 @@ class Ingestion:
         """
         # Check if data is available
         if self.data == []:
-            logging.debug("No data to save.")
+            logger.debug("No data to save.")
             return
 
         # Check if headers are available
         if self.headers == []:
-            logging.debug("No headers available.")
+            logger.debug("No headers available.")
             return
         
         # Construct path to the output file
@@ -107,7 +92,7 @@ class Ingestion:
                 # Add ingestion time
                 values.append(now.strftime("%Y-%m-%d %H:%M:%S"))
                 writer.writerow(values)
-        logging.info(f"Data saved to {file_path}")
+        logger.info(f"Data saved to {file_path}")
 
 
 class StationsIngestion(Ingestion):
@@ -136,7 +121,7 @@ class StationsIngestion(Ingestion):
         if self.data:
             return [station.get('stationIdentifier', None) for station in self.data]
         else:
-            logging.debug("No data available to extract station IDs.")
+            logger.debug("No data available to extract station IDs.")
             return None
 
 
@@ -157,7 +142,7 @@ class ObservationsIngestion(Ingestion):
 
         # Check if station_id is provided
         if not station_id:
-            logging.error("Station ID is required for observations ingestion.")
+            logger.error("Station ID is required for observations ingestion.")
             raise ValueError("Station ID is required for observations ingestion.")
 
         # Check if station_id is a list or a single value
@@ -183,10 +168,10 @@ def example():
     station_data = StationsIngestion(
         params={"state": "CA"}
         )
-    station_data.save_to_csv("stations.csv")
+    station_data.save_to_csv("stations/stations.csv")
     
     # Setting the start and end time for the observations
-    start = (now-datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    start = (now - datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
     end = start.replace(hour=23, minute=59, second=59, microsecond=0)
    
    # Getting 100 observations of each station on the previous day
@@ -197,7 +182,7 @@ def example():
             "end": end.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "limit": 100}
         )
-    observation_data.save_to_csv("observations.csv")
+    observation_data.save_to_csv(f"observations/observations_{start.strftime('%Y%m%d')}.csv")
     
 if __name__ == "__main__":
     example()
