@@ -1,10 +1,25 @@
 import logging
 import os
+import duckdb
 from datetime import datetime
 
 
 now = datetime.now()
 base_dir = os.path.dirname(os.path.abspath(__file__))
+
+class DuckClient:
+    def __init__(self, path=":memory:"):
+        self.path = path
+        self.conn = duckdb.connect(self.path)
+
+    def create(name:str, schema:str) -> None:
+        pass
+
+    def query(query:str):
+        pass
+
+
+
 
 def setup_logger(logs_filename: str):
     """
@@ -27,3 +42,4 @@ def setup_logger(logs_filename: str):
     logger = logging.getLogger(__name__)
 
     return logger
+
