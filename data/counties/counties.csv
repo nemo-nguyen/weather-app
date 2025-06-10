@@ -1,0 +1,2 @@
+@id,@type,id,type,name,effectiveDate,expirationDate,state,forecastOffice,gridIdentifier,awipsLocationIdentifier,cwa,forecastOffices,timeZone,observationStations,radarStation,ingestionDatetime
+https://api.weather.gov/zones/county/CAC069,wx:Zone,CAC069,county,San Benito,2025-03-18T18:00:00+00:00,2200-01-01T00:00:00+00:00,CA,https://api.weather.gov/offices/MTR,MTR,MTR,['MTR'],['https://api.weather.gov/offices/MTR'],['America/Los_Angeles'],[],,2025-06-10 23:37:11

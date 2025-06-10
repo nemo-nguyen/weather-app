@@ -48,16 +48,32 @@ class BaseProcessor:
 
         return df
     
-    def _load_to_db(self, table_name, mode):
-        pass
-        
-
-    # def extract_schema_str(self) -> str:
-    #     """
-    #     Generates a comma-separated schema string for table creation statements
-    #     """
-    #     return ",".join([f"{name} {type}" for name, type in self.df.dtypes()])
-
+    def _exist(self, table_name) -> bool: 
+        """
+        Check if a table exists in the database
+        """
+        return self.conn.execute(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?", table_name
+            ).fetchone()[0] > 0
+            
+    
+    def _load_to_db(self, table_name, mode, truncate = False) -> None:
+        """
+        Load the processed data to a table in the database, supports 2 modes: a - append, o - overwrite
+        """
+        df_arrow = self.df.toArrow()
+        self.conn.register(table_name, df_arrow)
+        if mode == "o":
+            self.conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM {table_name}")
+        elif mode == "a":
+            if self._exist(table_name):
+                if truncate:
+                    self.conn.execute(f"TRUNCATE TABLE {table_name}")
+                self.conn.execute(f"INSERT INTO {table_name} SELECT * FROM {table_name}")
+            else:
+                self.conn.execute(f"CREATE TABLE {table_name} AS SELECT * FROM {table_name}")
+        else:
+            logger.error("Incorrect writing mode, only accepts 'a' or 'w'")
 
     
 class StationDataProcessor(BaseProcessor): 
@@ -66,11 +82,6 @@ class StationDataProcessor(BaseProcessor):
         self.df = self.df.select(
             col("stationIdentifier").alias("id"),
             col("name"), 
-            substring(
-                col("timeZone"), 
-                instr(col("timeZone"), "/") + 1, 
-                length(col("timeZone"))
-            ).alias("city"),
             col("ingestionDatetime")
         )
     
@@ -81,16 +92,29 @@ class ObservationDataProcessor(BaseProcessor):
             StructField("unitCode", StringType()),
             StructField("value", DoubleType())
         ])
+        self.general_schema = StructType([
+            StructField("unitCode", StringType()),
+            StructField("value", DoubleType()),
+            StructField("qualityControl", StringType())
+        ]) 
         self.df = self.df.select(
-            col("station").substr(-5,length(col("station"))).alias("stationId"),
-            from_json(col("elevation"), self.elevation_schema).getField("value").alias("elevation_m")
-
+            col("timestamp").alias("observationTime"),
+            col("station").substr(-5, 5).alias("stationId"),
+            from_json(col("elevation"), self.elevation_schema).getField("value").alias("elevationInMeter"),
+            from_json(col("temperature"), self.general_schema).getField("value").alias("tempInDegC"),
+            from_json(col("windSpeed"), self.general_schema).getField("value").alias("windSpeedInKmpH"),
+            from_json(col("relativeHumidity"), self.general_schema).getField("value").alias("relHumidityInPct"),
+            col("ingestionDatetime")
         )
             
 
 def example():
     station_proc = StationDataProcessor(dir = "/home/nemo/.projects/weather-app/data/stations")
-    print(station_proc.df.show())
+    station_proc._load_to_db(table_name="station", mode="o")
+    print(station_proc.conn.execute("SELECT * FROM station").fetchall())
+
+    # obs_proc = ObservationDataProcessor(dir="/home/nemo/.projects/weather-app/data/observations")
+    # print(obs_proc.df.show())
 
 if __name__ == "__main__":
     example()

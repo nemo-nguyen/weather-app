@@ -12,16 +12,16 @@ from utils import setup_logger, now, base_dir
 # Set up logger
 logger = setup_logger("weather_ingestion.log")
 
-class Ingestion:
-    def __init__(self, params: dict = {"limit": 10}):
+class BaseIngestor:
+    def __init__(self, params: dict = None):
         """
         Initialize the base class for weather data ingestion.
         
         :param limit: The maximum number of records to retrieve (optional).
         """
-        # If limit is not provided, defaults to 10
-        if params.get("limit") is None:
-            params["limit"] = 10
+        # # If limit is not provided, defaults to 10
+        # if params.get("limit") is None:
+        #     params["limit"] = 10
 
         # Set the default parameters
         self.params = params
@@ -31,22 +31,26 @@ class Ingestion:
         self.data = []
     
     
-    def fetch_data(self):
+    def _fetch_data(self):
         """
         Get the data from the NOAA API.
         """
         logger.info(f"Fetching data from {self.base_url}")
         
         response = requests.get(
-            self.base_url,
-            params={k:v for (k,v) in self.params.items() if v is not None},
+            url = self.base_url,
+            params = self.params
+            # {k:v for (k,v) in self.params.items() if v is not None},
             )
         
         # Check if the request was successful
         if response.status_code == 200:
             # Insert fetched data into self.data
-            response_feature = response.json().get('features', [])
-            self.data.extend([data.get('properties', []) for data in response_feature])
+            if response.json().get('features'):
+                response_body = response.json().get('features') # If response body is a list of objects
+            else:
+                response_body = [response.json()] # If response body is a single object
+            self.data.extend([data.get('properties') for data in response_body])
             # Extract headers from the first data entry
             if self.data and not self.headers:
                 self.headers = [headers for headers in self.data[0].keys()]
@@ -56,7 +60,7 @@ class Ingestion:
             logger.error(f"Error: {response.status_code}, {response.reason}")
 
     
-    def save_to_csv(self, filename, mode='w'):
+    def _save_to_csv(self, filename, mode='w'):
         """
         Save the provided data to a CSV file.
 
@@ -65,12 +69,12 @@ class Ingestion:
         """
         # Check if data is available
         if self.data == []:
-            logger.debug("No data to save.")
+            logger.exception("No data to save.")
             return
 
         # Check if headers are available
         if self.headers == []:
-            logger.debug("No headers available.")
+            logger.exception("No headers available.")
             return
         
         # Construct path to the output file
@@ -95,15 +99,14 @@ class Ingestion:
         logger.info(f"Data saved to {file_path}")
 
 
-class StationsIngestion(Ingestion):
-    def __init__(self, params: dict = {"state": None, "limit": 10}):
+class StationIngestor(BaseIngestor):
+    def __init__(self, params: dict = None):
         """
         Initialize the StationIngestion class for weather station data ingestion.
 
         :param state: The state code for the weather data (optional).
         :param limit: The maximum number of records to retrieve (optional).
         """
-        
         # Call the base class constructor
         super().__init__(params)
 
@@ -112,21 +115,47 @@ class StationsIngestion(Ingestion):
         self.base_url = "".join(["https://api.weather.gov/", self.endpoint])
         
         # Fetch the stations data  
-        self.fetch_data()
+        self._fetch_data()
 
-    def get_station_id(self) -> list:
+    def _get_station_id(self) -> set:
         """
         Get all station IDs from the data.
         """
         if self.data:
-            return [station.get('stationIdentifier', None) for station in self.data]
+            return {station.get('stationIdentifier', None) for station in self.data}
         else:
             logger.debug("No data available to extract station IDs.")
             return None
+        
+    def _get_county_id(self) -> set:
+        """
+        Get all county IDs from the data.
+        """
+        if self.data:
+            county_endpoints = {station.get('county', None) for station in self.data}
+            county_ids = map(lambda x: x[-6:], county_endpoints)
+            return county_ids
+        else:
+            logger.debug("No data available to extract county IDs.")
+            return None
 
 
-class ObservationsIngestion(Ingestion):
-    def __init__(self, station_id:str|list, params: dict = {"start": None, "end": None, "limit": 10}):
+class CountyIngestor(BaseIngestor):
+    def __init__(self, county_ids):
+        super().__init__()
+        self.county_ids = county_ids
+
+        for county_id in self.county_ids:
+            # Update the base URL with county endpoint
+            self.endpoint = f"zones/county/{county_id}"
+            self.base_url = "".join(["https://api.weather.gov/", self.endpoint])
+
+            # Fetch data
+            self._fetch_data()
+
+
+class ObservationIngestor(BaseIngestor):
+    def __init__(self, station_ids, params: dict = None):
         """
         Initialize the ObservationsIngestion class for weather observations data ingestion.
 
@@ -139,25 +168,26 @@ class ObservationsIngestion(Ingestion):
         
         # Call the base class constructor
         super().__init__(params)
+        self.station_ids = station_ids
 
         # Check if station_id is provided
-        if not station_id:
+        if not station_ids:
             logger.error("Station ID is required for observations ingestion.")
             raise ValueError("Station ID is required for observations ingestion.")
 
         # Check if station_id is a list or a single value
-        if isinstance(station_id, list):
-            self.station_id = station_id
-        else:
-            self.station_id = [station_id]
+        # if isinstance(station_id, list):
+        #     self.station_id = station_id
+        # else:
+        #     self.station_id = [station_id]
         
-        for station_id in self.station_id:
+        for station_id in self.station_ids:
             # Update the base URL with the station ID
             self.endpoint = f"stations/{station_id}/observations"
             self.base_url = "".join(["https://api.weather.gov/", self.endpoint])
             
             # Fetch the observations data  
-            self.fetch_data()
+            self._fetch_data()
         
 
 def example():
@@ -165,24 +195,32 @@ def example():
     Example usages of the Ingestion classes.
     """
     # Getting stations data in California
-    station_data = StationsIngestion(
-        params={"state": "CA"}
-        )
-    station_data.save_to_csv("stations/stations.csv")
-    
-    # Setting the start and end time for the observations
-    start = (now - datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-    end = start.replace(hour=23, minute=59, second=59, microsecond=0)
-   
-   # Getting 100 observations of each station on the previous day
-    observation_data = ObservationsIngestion(
-        station_id = station_data.get_station_id(), 
+    station_data = StationIngestor(
         params={
-            "start": start.strftime('%Y-%m-%dT%H:%M:%SZ'),
-            "end": end.strftime('%Y-%m-%dT%H:%M:%SZ'),
-            "limit": 100}
+            "state": "CA",
+            "limit": 1}
         )
-    observation_data.save_to_csv(f"observations/observations_{start.strftime('%Y%m%d')}.csv")
+    station_data._save_to_csv("stations/stations.csv")
+    
+    # Getting county data 
+    county_data = CountyIngestor(
+        county_ids=station_data._get_county_id()
+    )
+    county_data._save_to_csv("counties/counties.csv")
+
+#     # Setting the start and end time for the observations
+#     start = (now - datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+#     end = start.replace(hour=23, minute=59, second=59, microsecond=0)
+   
+#    # Getting 100 observations of each station on the previous day
+#     observation_data = ObservationIngestor(
+#         station_ids = station_data._get_station_id(), 
+#         params={
+#             "start": start.strftime('%Y-%m-%dT%H:%M:%SZ'),
+#             "end": end.strftime('%Y-%m-%dT%H:%M:%SZ'),
+#             "limit": 100}
+#         )
+#     observation_data._save_to_csv(f"observations/observations_{start.strftime('%Y%m%d')}.csv")
     
 if __name__ == "__main__":
     example()
