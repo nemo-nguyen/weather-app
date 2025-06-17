@@ -53,25 +53,24 @@ class BaseProcessor:
         Check if a table exists in the database
         """
         return self.conn.execute(
-            "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?", table_name
+            f"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '{table_name}'", 
             ).fetchone()[0] > 0
             
-    
     def _load_to_db(self, table_name, mode, truncate = False) -> None:
         """
         Load the processed data to a table in the database, supports 2 modes: a - append, o - overwrite
         """
         df_arrow = self.df.toArrow()
-        self.conn.register(table_name, df_arrow)
+        self.conn.register(f"{table_name}_stg", df_arrow)
         if mode == "o":
-            self.conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM {table_name}")
+            self.conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM {table_name}_stg")
         elif mode == "a":
             if self._exist(table_name):
                 if truncate:
                     self.conn.execute(f"TRUNCATE TABLE {table_name}")
-                self.conn.execute(f"INSERT INTO {table_name} SELECT * FROM {table_name}")
+                self.conn.execute(f"INSERT INTO {table_name} SELECT * FROM {table_name}_stg")
             else:
-                self.conn.execute(f"CREATE TABLE {table_name} AS SELECT * FROM {table_name}")
+                self.conn.execute(f"CREATE TABLE {table_name} AS SELECT * FROM {table_name}_stg")
         else:
             logger.error("Incorrect writing mode, only accepts 'a' or 'w'")
 
@@ -84,7 +83,41 @@ class StationDataProcessor(BaseProcessor):
             col("name"), 
             col("ingestionDatetime")
         )
-    
+
+
+class CountyDataProcessor(BaseProcessor):
+    def __init__(self, dir):
+        super().__init__(dir)
+        self.df = self.df.select(
+            col("id"),
+            col("name"),
+            col("state"),
+            col("forecastOffice").substr(-3,3).alias("forecastOfficeId"),
+            col("ingestionDatetime")
+        )
+
+
+class OfficeDataProcessor(BaseProcessor):
+    def __init__(self, dir):
+        super().__init__(dir)
+        self.address_schema = StructType([
+            StructField("@type", StringType()),
+            StructField("streetAddress", StringType()),
+            StructField("addressLocality", StringType()),
+            StructField("addressRegion", StringType()),
+            StructField("postalCode", StringType())
+        ])
+        self.df = self.df.select(
+            col("id"),
+            col("name"),
+            from_json(col("address"), self.address_schema).getField("streetAddress").alias("streetAddress"),
+            from_json(col("address"), self.address_schema).getField("addressLocality").alias("addressLocality"),
+            from_json(col("address"), self.address_schema).getField("addressRegion").alias("addressRegion"),
+            from_json(col("address"), self.address_schema).getField("postalCode").alias("postalCode"),
+            col("ingestionDatetime")
+        )
+
+
 class ObservationDataProcessor(BaseProcessor):
     def __init__(self, dir):
         super().__init__(dir)
@@ -113,8 +146,17 @@ def example():
     station_proc._load_to_db(table_name="station", mode="o")
     print(station_proc.conn.execute("SELECT * FROM station").fetchall())
 
-    # obs_proc = ObservationDataProcessor(dir="/home/nemo/.projects/weather-app/data/observations")
-    # print(obs_proc.df.show())
+    county_proc = CountyDataProcessor(dir = "/home/nemo/.projects/weather-app/data/counties")
+    county_proc._load_to_db(table_name="county", mode="o")
+    print(county_proc.conn.execute("SELECT * FROM county").fetchall())
+
+    office_proc = OfficeDataProcessor(dir = "/home/nemo/.projects/weather-app/data/offices")
+    office_proc._load_to_db(table_name="office", mode="o")
+    print(office_proc.conn.execute("SELECT * FROM office").fetchall())
+
+    obs_proc = ObservationDataProcessor(dir="/home/nemo/.projects/weather-app/data/observations")
+    obs_proc._load_to_db(table_name="observation", mode="a")
+    print(obs_proc.conn.execute("SELECT * FROM observation").fetchall())
 
 if __name__ == "__main__":
     example()

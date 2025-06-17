@@ -1,111 +1,18 @@
-2025-06-10 23:07:18,224 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:07:18,628 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:07:18,629 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:07:18,629 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC019
-2025-06-10 23:07:19,038 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC019
-2025-06-10 23:07:19,039 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC039
-2025-06-10 23:07:19,329 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC039
-2025-06-10 23:07:19,329 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC085
-2025-06-10 23:07:19,445 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC085
-2025-06-10 23:07:19,445 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC017
-2025-06-10 23:07:19,604 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC017
-2025-06-10 23:07:19,605 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC023
-2025-06-10 23:07:19,803 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC023
-2025-06-10 23:07:19,803 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:07:19,942 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:07:19,943 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC065
-2025-06-10 23:07:20,056 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC065
-2025-06-10 23:07:20,056 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC097
-2025-06-10 23:07:20,219 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC097
-2025-06-10 23:07:20,219 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC109
-2025-06-10 23:07:20,369 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC109
-2025-06-10 23:07:20,370 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC055
-2025-06-10 23:07:20,526 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC055
-2025-06-10 23:07:20,526 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC009
-2025-06-10 23:07:20,690 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC009
-2025-06-10 23:07:20,691 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC111
-2025-06-10 23:07:20,837 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC111
-2025-06-10 23:07:20,837 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC045
-2025-06-10 23:07:21,045 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC045
-2025-06-10 23:07:21,045 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC001
-2025-06-10 23:07:21,189 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC001
-2025-06-10 23:07:21,189 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC071
-2025-06-10 23:07:21,335 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC071
-2025-06-10 23:07:21,335 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC081
-2025-06-10 23:07:21,462 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC081
-2025-06-10 23:07:21,463 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC053
-2025-06-10 23:07:21,603 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC053
-2025-06-10 23:07:21,604 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC113
-2025-06-10 23:07:21,754 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC113
-2025-06-10 23:07:21,754 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC003
-2025-06-10 23:07:21,895 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC003
-2025-06-10 23:07:21,895 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC037
-2025-06-10 23:07:22,100 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC037
-2025-06-10 23:07:22,100 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC095
-2025-06-10 23:07:22,279 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC095
-2025-06-10 23:07:22,280 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC099
-2025-06-10 23:07:22,422 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC099
-2025-06-10 23:07:22,422 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC033
-2025-06-10 23:07:22,562 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC033
-2025-06-10 23:07:22,562 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC083
-2025-06-10 23:07:22,769 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC083
-2025-06-10 23:07:22,769 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC029
-2025-06-10 23:07:22,904 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC029
-2025-06-10 23:07:22,904 - ERROR - No data to save.
-NoneType: None
-2025-06-10 23:08:32,156 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:10:06,236 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:10:06,673 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:10:06,678 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:10:10,693 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC099
-2025-06-10 23:10:10,844 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC099
-2025-06-10 23:10:49,035 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC003
-2025-06-10 23:16:08,518 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:16:09,072 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:16:09,074 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:16:09,074 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:18:15,396 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:18:15,839 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:18:15,840 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:18:15,840 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC099
-2025-06-10 23:20:17,148 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:20:17,316 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:20:17,318 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:20:17,318 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC071
-2025-06-10 23:20:37,653 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:21:36,118 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:22:17,468 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:22:22,990 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:22:34,113 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:25:54,360 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:26:00,543 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:26:02,068 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:26:11,380 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:28:25,207 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:28:25,363 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:28:25,364 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:28:25,364 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:28:25,521 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:29:31,950 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:29:35,249 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:29:36,561 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:29:39,762 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:30:13,769 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:31:34,114 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:31:34,553 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:31:34,553 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:31:34,553 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:31:34,964 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:31:34,964 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/counties/counties.csv
-2025-06-10 23:36:37,957 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:36:38,446 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:36:38,446 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:36:38,447 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:36:38,765 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:36:38,767 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/counties/counties.csv
-2025-06-10 23:37:11,717 - INFO - Fetching data from https://api.weather.gov/stations
-2025-06-10 23:37:12,166 - INFO - Data fetched successfully from https://api.weather.gov/stations
-2025-06-10 23:37:12,166 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
-2025-06-10 23:37:12,166 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:37:12,577 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC069
-2025-06-10 23:37:12,577 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/counties/counties.csv
+2025-06-18 01:02:52,923 - INFO - Fetching data from https://api.weather.gov/stations
+2025-06-18 01:02:53,356 - INFO - Data fetched successfully from https://api.weather.gov/stations
+2025-06-18 01:02:53,356 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/stations/stations.csv
+2025-06-18 01:02:53,356 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC069
+2025-06-18 01:02:53,766 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC069
+2025-06-18 01:02:53,766 - INFO - Fetching data from https://api.weather.gov/zones/county/CAC037
+2025-06-18 01:02:54,281 - INFO - Data fetched successfully from https://api.weather.gov/zones/county/CAC037
+2025-06-18 01:02:54,282 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/counties/counties.csv
+2025-06-18 01:02:54,282 - INFO - Fetching data from https://api.weather.gov/offices/MTR
+2025-06-18 01:02:54,687 - INFO - Data fetched successfully from https://api.weather.gov/offices/MTR
+2025-06-18 01:02:54,687 - INFO - Fetching data from https://api.weather.gov/offices/LOX
+2025-06-18 01:02:54,985 - INFO - Data fetched successfully from https://api.weather.gov/offices/LOX
+2025-06-18 01:02:54,985 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/offices/offices.csv
+2025-06-18 01:02:54,986 - INFO - Fetching data from https://api.weather.gov/stations/000SE/observations
+2025-06-18 01:02:55,508 - INFO - Data fetched successfully from https://api.weather.gov/stations/000SE/observations
+2025-06-18 01:02:55,508 - INFO - Fetching data from https://api.weather.gov/stations/000PG/observations
+2025-06-18 01:02:56,019 - INFO - Data fetched successfully from https://api.weather.gov/stations/000PG/observations
+2025-06-18 01:02:56,021 - INFO - Data saved to /home/nemo/.projects/weather-app/src/../data/observations/20250617_observations.csv

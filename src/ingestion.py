@@ -50,7 +50,11 @@ class BaseIngestor:
                 response_body = response.json().get('features') # If response body is a list of objects
             else:
                 response_body = [response.json()] # If response body is a single object
-            self.data.extend([data.get('properties') for data in response_body])
+            
+            if response_body[0].get('properties'):
+                self.data.extend([data.get('properties') for data in response_body])
+            else:
+                self.data.extend([data for data in response_body])
             # Extract headers from the first data entry
             if self.data and not self.headers:
                 self.headers = [headers for headers in self.data[0].keys()]
@@ -60,10 +64,11 @@ class BaseIngestor:
             logger.error(f"Error: {response.status_code}, {response.reason}")
 
     
-    def _save_to_csv(self, filename, mode='w'):
+    def _save_to_csv(self, dir, filename, mode='w'):
         """
         Save the provided data to a CSV file.
 
+        :param dir: The directory containing the output CSV file.
         :param filename: The name of the output CSV file.
         :param mode: The mode in which to open the file ('w' for write, 'a' for append).
         """
@@ -78,7 +83,7 @@ class BaseIngestor:
             return
         
         # Construct path to the output file
-        output_dir = os.path.join(base_dir, "../data")
+        output_dir = os.path.join(base_dir, f"../{dir}")
         os.makedirs(output_dir, exist_ok=True) 
         file_path = os.path.join(output_dir, filename)
         
@@ -124,7 +129,7 @@ class StationIngestor(BaseIngestor):
         if self.data:
             return {station.get('stationIdentifier', None) for station in self.data}
         else:
-            logger.debug("No data available to extract station IDs.")
+            logger.exception("No data available to extract station IDs.")
             return None
         
     def _get_county_id(self) -> set:
@@ -136,7 +141,7 @@ class StationIngestor(BaseIngestor):
             county_ids = map(lambda x: x[-6:], county_endpoints)
             return county_ids
         else:
-            logger.debug("No data available to extract county IDs.")
+            logger.exception("No data available to extract county IDs.")
             return None
 
 
@@ -148,6 +153,32 @@ class CountyIngestor(BaseIngestor):
         for county_id in self.county_ids:
             # Update the base URL with county endpoint
             self.endpoint = f"zones/county/{county_id}"
+            self.base_url = "".join(["https://api.weather.gov/", self.endpoint])
+
+            # Fetch data
+            self._fetch_data()
+
+    def _get_office_id(self) -> set:
+        """
+        Get all office IDs from the data.
+        """
+        if self.data:
+            office_endpoints = {county.get('forecastOffice', None) for county in self.data}
+            office_ids = map(lambda x: x[-3:], office_endpoints)
+            return office_ids
+        else:
+            logger.exception("No data available to extract office IDs.")
+            return None
+
+
+class OfficeIngestor(BaseIngestor):
+    def __init__(self, office_ids):
+        super().__init__()
+        self.office_ids = office_ids
+
+        for office_id in self.office_ids:
+            # Update the base URL with county endpoint
+            self.endpoint = f"offices/{office_id}"
             self.base_url = "".join(["https://api.weather.gov/", self.endpoint])
 
             # Fetch data
@@ -198,29 +229,35 @@ def example():
     station_data = StationIngestor(
         params={
             "state": "CA",
-            "limit": 1}
+            "limit": 2}
         )
-    station_data._save_to_csv("stations/stations.csv")
+    station_data._save_to_csv(dir="data/stations", filename="stations.csv")
     
     # Getting county data 
     county_data = CountyIngestor(
         county_ids=station_data._get_county_id()
     )
-    county_data._save_to_csv("counties/counties.csv")
+    county_data._save_to_csv(dir="data/counties", filename="counties.csv")
 
-#     # Setting the start and end time for the observations
-#     start = (now - datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-#     end = start.replace(hour=23, minute=59, second=59, microsecond=0)
+    # Getting office data
+    office_data = OfficeIngestor(
+        office_ids=county_data._get_office_id()
+    )
+    office_data._save_to_csv(dir="data/offices", filename="offices.csv")
+
+    # Setting the start and end time for the observations
+    start = (now - datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    end = start.replace(hour=23, minute=59, second=59, microsecond=0)
    
-#    # Getting 100 observations of each station on the previous day
-#     observation_data = ObservationIngestor(
-#         station_ids = station_data._get_station_id(), 
-#         params={
-#             "start": start.strftime('%Y-%m-%dT%H:%M:%SZ'),
-#             "end": end.strftime('%Y-%m-%dT%H:%M:%SZ'),
-#             "limit": 100}
-#         )
-#     observation_data._save_to_csv(f"observations/observations_{start.strftime('%Y%m%d')}.csv")
+   # Getting 100 observations of each station on the previous day
+    observation_data = ObservationIngestor(
+        station_ids = station_data._get_station_id(), 
+        params={
+            "start": start.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "end": end.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "limit": 100}
+        )
+    observation_data._save_to_csv(dir="data/observations", filename=f"{start.strftime('%Y%m%d')}_observations.csv")
     
 if __name__ == "__main__":
     example()
