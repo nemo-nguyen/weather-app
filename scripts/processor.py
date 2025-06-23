@@ -10,7 +10,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col, instr, length, substring
 from pyspark.sql.types import StructType, StructField, DoubleType, StringType
 from datetime import datetime
-from utils import setup_logger, now, base_dir
+from .utils import setup_logger, now, base_dir
 
 # Set up logger
 logger = setup_logger("weather_processing.log")
@@ -141,7 +141,7 @@ class ObservationDataProcessor(BaseProcessor):
         )
             
 
-def example():
+if __name__ == "__main__":
     station_proc = StationDataProcessor(dir = "/home/nemo/.projects/weather-app/data/stations")
     station_proc._load_to_db(table_name="station", mode="o")
     print(station_proc.conn.execute("SELECT * FROM station").fetchall())
@@ -157,9 +157,6 @@ def example():
     obs_proc = ObservationDataProcessor(dir="/home/nemo/.projects/weather-app/data/observations")
     obs_proc._load_to_db(table_name="observation", mode="a")
     print(obs_proc.conn.execute("SELECT * FROM observation").fetchall())
-
-if __name__ == "__main__":
-    example()
         
 
     

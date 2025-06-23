@@ -1,9 +1,0 @@
-2025-06-18 01:03:45,508 - INFO - Reading data from /home/nemo/.projects/weather-app/data/stations
-2025-06-18 01:03:48,490 - INFO - Number of records read: 2
-2025-06-18 01:03:48,939 - INFO - Reading data from /home/nemo/.projects/weather-app/data/counties
-2025-06-18 01:03:49,241 - INFO - Number of records read: 2
-2025-06-18 01:03:49,370 - INFO - Reading data from /home/nemo/.projects/weather-app/data/offices
-2025-06-18 01:03:49,656 - INFO - Number of records read: 2
-2025-06-18 01:03:49,893 - INFO - Reading data from /home/nemo/.projects/weather-app/data/observations
-2025-06-18 01:03:50,149 - INFO - Number of records read: 47
-2025-06-18 01:03:50,368 - INFO - Closing down clientserver connection

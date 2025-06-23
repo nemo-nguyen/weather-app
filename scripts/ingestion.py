@@ -7,7 +7,7 @@ import requests
 import os
 import csv
 import datetime
-from utils import setup_logger, now, base_dir
+from .utils import setup_logger, now, base_dir
 
 # Set up logger
 logger = setup_logger("weather_ingestion.log")
@@ -220,11 +220,8 @@ class ObservationIngestor(BaseIngestor):
             # Fetch the observations data  
             self._fetch_data()
         
-
-def example():
-    """
-    Example usages of the Ingestion classes.
-    """
+    
+if __name__ == "__main__":
     # Getting stations data in California
     station_data = StationIngestor(
         params={
@@ -258,6 +255,3 @@ def example():
             "limit": 100}
         )
     observation_data._save_to_csv(dir="data/observations", filename=f"{start.strftime('%Y%m%d')}_observations.csv")
-    
-if __name__ == "__main__":
-    example()
