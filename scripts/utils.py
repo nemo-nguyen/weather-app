@@ -27,7 +27,7 @@ def setup_logger(logs_filename: str):
     
     :param log_filename: Name of the log file.
     """
-    logs_dir = os.path.join(base_dir, "../logs")
+    logs_dir = os.path.join(os.environ.get("AIRFLOW_HOME", "/opt/airflow"), "logs", "scripts")
 
     # Create logs directory if it doesn't exist
     os.makedirs(logs_dir, exist_ok=True)

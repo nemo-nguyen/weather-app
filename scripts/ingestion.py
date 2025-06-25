@@ -7,7 +7,7 @@ import requests
 import os
 import csv
 import datetime
-from .utils import setup_logger, now, base_dir
+from .utils import setup_logger, now
 
 # Set up logger
 logger = setup_logger("weather_ingestion.log")
@@ -83,7 +83,7 @@ class BaseIngestor:
             return
         
         # Construct path to the output file
-        output_dir = os.path.join(base_dir, f"../{dir}")
+        output_dir = os.path.join(os.environ.get("AIRFLOW_HOME", "/opt/airflow"), dir)
         os.makedirs(output_dir, exist_ok=True) 
         file_path = os.path.join(output_dir, filename)
         
