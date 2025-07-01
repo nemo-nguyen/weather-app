@@ -1,8 +1,13 @@
 import pendulum
+import os
 from datetime import timedelta
 from airflow.sdk import dag, task
 from scripts.ingestion import StationIngestor, CountyIngestor, OfficeIngestor, ObservationIngestor
 from scripts.utils import now
+
+ingestion_state         = os.environ.get("INGESTION_STATE", "CA").split(",")
+ingestion_station_limit = os.environ.get("INGESTION_STATION_LIMIT", 10)
+ingestion_obs_limit     = os.environ.get("INGESTION_OBS_LIMIT", 100)
 
 # Pythonic airflow dag
 @dag(
@@ -15,7 +20,7 @@ def ingestion_dag():
     @task(multiple_outputs=True)
     def ingest_station_data():
         station_ingestor = StationIngestor(
-            params={"state":"CA", "limit":10}
+            params={"state": ingestion_state, "limit": ingestion_station_limit}
             )
         station_ingestor._save_to_csv(dir="data/stations", filename="stations.csv")
         return {
@@ -50,7 +55,7 @@ def ingestion_dag():
             params={
                 "start": start.strftime('%Y-%m-%dT%H:%M:%SZ'),
                 "end": end.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                "limit": 100
+                "limit": ingestion_obs_limit
                 }
             )
         observation_ingestor._save_to_csv(dir="data/observations", filename=f"{start.strftime('%Y%m%d')}_observations.csv")
@@ -59,6 +64,5 @@ def ingestion_dag():
     observation_output = ingest_observation_data(xcom_station_ids=station_outputs["station_ids"])
     county_output = ingest_county_data(xcom_county_ids=station_outputs["county_ids"])
     office_output = ingest_office_data(xcom_office_ids=county_output)
-    
     
 ingestion_dag()
