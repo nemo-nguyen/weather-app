@@ -4,13 +4,13 @@ Process the weather data
 
 
 import os
-import pyarrow as pa
+# import pyarrow 
 import duckdb
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, col, instr, length, substring
 from pyspark.sql.types import StructType, StructField, DoubleType, StringType
-from datetime import datetime
-from .utils import setup_logger, now, base_dir
+# from datetime import datetime
+from .utils import setup_logger, AIRFLOW_HOME, DUCKDB_PATH, now
 
 # Set up logger
 logger = setup_logger("weather_processing.log")
@@ -22,13 +22,13 @@ class BaseProcessor:
     """
     def __init__(self, dir):    
         # Initialize the Spark session
-        self.dir = dir
         self.spark  = SparkSession.builder \
             .appName("WeatherDataProcessing") \
             .getOrCreate()
         self.conn = duckdb.connect(
-            database=os.path.join(base_dir,"../db/weather.db")
+            database=os.path.join(DUCKDB_PATH,"weather.db")
             )
+        self.dir = os.path.join(AIRFLOW_HOME, dir)
         self.df = self._read_from_dir()
         
         
@@ -56,7 +56,7 @@ class BaseProcessor:
             f"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '{table_name}'", 
             ).fetchone()[0] > 0
             
-    def _load_to_db(self, table_name, mode, truncate = False) -> None:
+    def load_to_db(self, table_name, mode, truncate = False) -> None:
         """
         Load the processed data to a table in the database, supports 2 modes: a - append, o - overwrite
         """
@@ -142,20 +142,20 @@ class ObservationDataProcessor(BaseProcessor):
             
 
 if __name__ == "__main__":
-    station_proc = StationDataProcessor(dir = "/home/nemo/.projects/weather-app/data/stations")
-    station_proc._load_to_db(table_name="station", mode="o")
+    station_proc = StationDataProcessor(dir = "data/stations")
+    station_proc.load_to_db(table_name="station", mode="o")
     print(station_proc.conn.execute("SELECT * FROM station").fetchall())
 
-    county_proc = CountyDataProcessor(dir = "/home/nemo/.projects/weather-app/data/counties")
-    county_proc._load_to_db(table_name="county", mode="o")
+    county_proc = CountyDataProcessor(dir = "data/counties")
+    county_proc.load_to_db(table_name="county", mode="o")
     print(county_proc.conn.execute("SELECT * FROM county").fetchall())
 
-    office_proc = OfficeDataProcessor(dir = "/home/nemo/.projects/weather-app/data/offices")
-    office_proc._load_to_db(table_name="office", mode="o")
+    office_proc = OfficeDataProcessor(dir = "data/offices")
+    office_proc.load_to_db(table_name="office", mode="o")
     print(office_proc.conn.execute("SELECT * FROM office").fetchall())
 
-    obs_proc = ObservationDataProcessor(dir="/home/nemo/.projects/weather-app/data/observations")
-    obs_proc._load_to_db(table_name="observation", mode="a")
+    obs_proc = ObservationDataProcessor(dir="data/observations")
+    obs_proc.load_to_db(table_name="observation", mode="a")
     print(obs_proc.conn.execute("SELECT * FROM observation").fetchall())
         
 

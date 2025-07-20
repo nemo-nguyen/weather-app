@@ -7,7 +7,7 @@ import requests
 import os
 import csv
 import datetime
-from .utils import setup_logger, now
+from .utils import setup_logger, AIRFLOW_HOME, now
 
 # Set up logger
 logger = setup_logger("weather_ingestion.log")
@@ -64,7 +64,7 @@ class BaseIngestor:
             logger.error(f"Error: {response.status_code}, {response.reason}")
 
     
-    def _save_to_csv(self, dir, filename, mode='w'):
+    def save_to_csv(self, dir, filename, mode='w'):
         """
         Save the provided data to a CSV file.
 
@@ -83,7 +83,7 @@ class BaseIngestor:
             return
         
         # Construct path to the output file
-        output_dir = os.path.join(os.environ.get("AIRFLOW_HOME", "/opt/airflow"), dir)
+        output_dir = os.path.join(AIRFLOW_HOME, dir)
         os.makedirs(output_dir, exist_ok=True) 
         file_path = os.path.join(output_dir, filename)
         
@@ -122,7 +122,7 @@ class StationIngestor(BaseIngestor):
         # Fetch the stations data  
         self._fetch_data()
 
-    def _get_station_id(self) -> set:
+    def get_station_id(self) -> set:
         """
         Get all station IDs from the data.
         """
@@ -132,7 +132,7 @@ class StationIngestor(BaseIngestor):
             logger.exception("No data available to extract station IDs.")
             return None
         
-    def _get_county_id(self) -> set:
+    def get_county_id(self) -> set:
         """
         Get all county IDs from the data.
         """
@@ -158,7 +158,7 @@ class CountyIngestor(BaseIngestor):
             # Fetch data
             self._fetch_data()
 
-    def _get_office_id(self) -> set:
+    def get_office_id(self) -> set:
         """
         Get all office IDs from the data.
         """
@@ -228,19 +228,19 @@ if __name__ == "__main__":
             "state": "CA",
             "limit": 2}
         )
-    station_data._save_to_csv(dir="data/stations", filename="stations.csv")
+    station_data.save_to_csv(dir="data/stations", filename="stations.csv")
     
     # Getting county data 
     county_data = CountyIngestor(
-        county_ids=station_data._get_county_id()
+        county_ids=station_data.get_county_id()
     )
-    county_data._save_to_csv(dir="data/counties", filename="counties.csv")
+    county_data.save_to_csv(dir="data/counties", filename="counties.csv")
 
     # Getting office data
     office_data = OfficeIngestor(
-        office_ids=county_data._get_office_id()
+        office_ids=county_data.get_office_id()
     )
-    office_data._save_to_csv(dir="data/offices", filename="offices.csv")
+    office_data.save_to_csv(dir="data/offices", filename="offices.csv")
 
     # Setting the start and end time for the observations
     start = (now - datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -248,10 +248,10 @@ if __name__ == "__main__":
    
    # Getting 100 observations of each station on the previous day
     observation_data = ObservationIngestor(
-        station_ids = station_data._get_station_id(), 
+        station_ids = station_data.get_station_id(), 
         params={
             "start": start.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "end": end.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "limit": 100}
         )
-    observation_data._save_to_csv(dir="data/observations", filename=f"{start.strftime('%Y%m%d')}_observations.csv")
+    observation_data.save_to_csv(dir="data/observations", filename=f"{start.strftime('%Y%m%d')}_observations.csv")

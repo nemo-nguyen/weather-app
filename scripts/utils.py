@@ -1,25 +1,14 @@
 import logging
 import os
-import duckdb
+# import dotenv
 from datetime import datetime
 
 
+# Env variables
+# dotenv.load_dotenv()
+AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME", "/opt/airflow")
+DUCKDB_PATH = os.environ.get("DUCKDB_PATH", "/opt/db")
 now = datetime.now()
-base_dir = os.path.dirname(os.path.abspath(__file__))
-
-class DuckClient:
-    def __init__(self, path=":memory:"):
-        self.path = path
-        self.conn = duckdb.connect(self.path)
-
-    def create(name:str, schema:str) -> None:
-        pass
-
-    def query(query:str):
-        pass
-
-
-
 
 def setup_logger(logs_filename: str):
     """
@@ -27,7 +16,7 @@ def setup_logger(logs_filename: str):
     
     :param log_filename: Name of the log file.
     """
-    logs_dir = os.path.join(os.environ.get("AIRFLOW_HOME", "/opt/airflow"), "logs", "scripts")
+    logs_dir = os.path.join(AIRFLOW_HOME, "logs", "scripts")
 
     # Create logs directory if it doesn't exist
     os.makedirs(logs_dir, exist_ok=True)

@@ -15,10 +15,8 @@ COPY ./scripts /opt/scripts
 # Change ownership of files within /opt/airflow to user airflow
 RUN chown -R airflow: /opt/airflow
 
-# Change ownership of files within ./airflow/data to user airflow
-RUN chown -R airflow: /opt/airflow
-
 # Install necessary Python libs
 USER airflow
 RUN pip install duckdb==1.3.0 \
-    pyspark==4.0.0
+    pyspark==4.0.0 \
+    pyarrow==20.0.0

@@ -68,10 +68,9 @@ x-airflow-common:
     INGESTION_STATION_LIMIT: 50
     INGESTION_OBS_LIMIT: 200
     
-    # For airflow CLI commands and custom Python scripts
     AIRFLOW_HOME: /opt/airflow
-    # For custom Python scripts to be importable
-    PYTHONPATH: '/opt'
+    DUCKDB_PATH: /opt/db 
+    PYTHONPATH: /opt
   volumes:
     # Named volume to share between containers
     - airflow_home:/opt/airflow

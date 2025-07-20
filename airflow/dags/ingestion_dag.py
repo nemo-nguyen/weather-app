@@ -11,22 +11,22 @@ ingestion_obs_limit     = os.environ.get("INGESTION_OBS_LIMIT", 100)
 
 # Pythonic airflow dag
 @dag(
-    schedule=None,
+    schedule="30 0 * * * ", # Run daily at 00:30AM
     start_date=pendulum.datetime(year=2025, month=6, day=22, tz="UTC"),
     catchup=False,
-    tags=["ingestion"]
+    tags=["ingest"]
 ) 
-def ingestion_dag():
+def ingest_dag():
     @task(multiple_outputs=True)
     def ingest_station_data():
         station_ingestor = StationIngestor(
             params={"state": ingestion_state, "limit": ingestion_station_limit}
             )
-        station_ingestor._save_to_csv(dir="data/stations", filename="stations.csv")
+        station_ingestor.save_to_csv(dir="data/stations", filename="stations.csv")
         return {
             # Convert to list for XCom serialization rule
-            "station_ids": list(station_ingestor._get_station_id()), 
-            "county_ids": list(station_ingestor._get_county_id())
+            "station_ids": list(station_ingestor.get_station_id()), 
+            "county_ids": list(station_ingestor.get_county_id())
             }
     
     @task()
@@ -35,15 +35,15 @@ def ingestion_dag():
             # station_outputs is an XcomArg obj, can't use station_outputs["county_ids"] directly here
             county_ids=xcom_county_ids
             )
-        county_ingestor._save_to_csv(dir="data/counties", filename="counties.csv")
-        return list(county_ingestor._get_office_id())
+        county_ingestor.save_to_csv(dir="data/counties", filename="counties.csv")
+        return list(county_ingestor.get_office_id())
     
     @task()
     def ingest_office_data(xcom_office_ids):
         office_ingestor = OfficeIngestor(
             office_ids=xcom_office_ids
             )
-        office_ingestor._save_to_csv(dir="data/offices", filename="offices.csv")
+        office_ingestor.save_to_csv(dir="data/offices", filename="offices.csv")
 
     @task
     def ingest_observation_data(xcom_station_ids):
@@ -58,11 +58,11 @@ def ingestion_dag():
                 "limit": ingestion_obs_limit
                 }
             )
-        observation_ingestor._save_to_csv(dir="data/observations", filename=f"{start.strftime('%Y%m%d')}_observations.csv")
+        observation_ingestor.save_to_csv(dir="data/observations", filename=f"{start.strftime('%Y%m%d')}_observations.csv")
     
-    station_outputs = ingest_station_data()
-    observation_output = ingest_observation_data(xcom_station_ids=station_outputs["station_ids"])
-    county_output = ingest_county_data(xcom_county_ids=station_outputs["county_ids"])
-    office_output = ingest_office_data(xcom_office_ids=county_output)
+    station_outputs     = ingest_station_data()
+    observation_output  = ingest_observation_data(xcom_station_ids=station_outputs["station_ids"])
+    county_output       = ingest_county_data(xcom_county_ids=station_outputs["county_ids"])
+    office_output       = ingest_office_data(xcom_office_ids=county_output)
     
-ingestion_dag()
+ingest_dag()
