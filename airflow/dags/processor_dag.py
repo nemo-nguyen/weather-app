@@ -29,7 +29,7 @@ def process_dag():
 
     @task()
     def process_office_data():
-        office_processor = OfficeDataProcessor(dir = "data/offices")
+        office_processor = OfficeDataProcessor(dir="data/offices")
         office_processor.load_to_db(table_name="office", mode="o")
 
     @task()
