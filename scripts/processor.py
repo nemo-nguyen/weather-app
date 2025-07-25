@@ -38,6 +38,11 @@ class BaseProcessor:
         
         :param dir: Directory containing the CSV files.
         """
+        # Check if directory exists
+        if not os.path.exists(self.dir):
+            logger.exception(f"Directory does not exist: {self.dir}")
+            return
+        
         logger.info(f"Reading data from {self.dir}")
         
         # Read all CSV files in the directory
@@ -60,41 +65,46 @@ class BaseProcessor:
         """
         Load the processed data to a table in the database, supports 2 modes: a - append, o - overwrite
         """
-        df_arrow = self.df.toArrow()
-        self.conn.register(f"{table_name}_stg", df_arrow)
-        if mode == "o":
-            self.conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM {table_name}_stg")
-        elif mode == "a":
-            if self._exist(table_name):
-                if truncate:
-                    self.conn.execute(f"TRUNCATE TABLE {table_name}")
-                self.conn.execute(f"INSERT INTO {table_name} SELECT * FROM {table_name}_stg")
+        if self.df:
+            df_arrow = self.df.toArrow()
+            self.conn.register(f"{table_name}_stg", df_arrow)
+            if mode == "o":
+                self.conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM {table_name}_stg")
+            elif mode == "a":
+                if self._exist(table_name):
+                    if truncate:
+                        self.conn.execute(f"TRUNCATE TABLE {table_name}")
+                    self.conn.execute(f"INSERT INTO {table_name} SELECT * FROM {table_name}_stg")
+                else:
+                    self.conn.execute(f"CREATE TABLE {table_name} AS SELECT * FROM {table_name}_stg")
             else:
-                self.conn.execute(f"CREATE TABLE {table_name} AS SELECT * FROM {table_name}_stg")
+                logger.error("Incorrect writing mode, only accepts 'a' or 'w'")
         else:
-            logger.error("Incorrect writing mode, only accepts 'a' or 'w'")
+            logger.exception("No data to load")
 
     
 class StationDataProcessor(BaseProcessor): 
     def __init__(self, dir):
         super().__init__(dir)
-        self.df = self.df.select(
-            col("stationIdentifier").alias("id"),
-            col("name"), 
-            col("ingestionDatetime")
-        )
+        if self.df:
+            self.df = self.df.select(
+                col("stationIdentifier").alias("id"),
+                col("name"), 
+                col("ingestionDatetime")
+            )
 
 
 class CountyDataProcessor(BaseProcessor):
     def __init__(self, dir):
         super().__init__(dir)
-        self.df = self.df.select(
-            col("id"),
-            col("name"),
-            col("state"),
-            col("forecastOffice").substr(-3,3).alias("forecastOfficeId"),
-            col("ingestionDatetime")
-        )
+        if self.df:
+            self.df = self.df.select(
+                col("id"),
+                col("name"),
+                col("state"),
+                col("forecastOffice").substr(-3,3).alias("forecastOfficeId"),
+                col("ingestionDatetime")
+            )
 
 
 class OfficeDataProcessor(BaseProcessor):
@@ -107,15 +117,16 @@ class OfficeDataProcessor(BaseProcessor):
             StructField("addressRegion", StringType()),
             StructField("postalCode", StringType())
         ])
-        self.df = self.df.select(
-            col("id"),
-            col("name"),
-            from_json(col("address"), self.address_schema).getField("streetAddress").alias("streetAddress"),
-            from_json(col("address"), self.address_schema).getField("addressLocality").alias("addressLocality"),
-            from_json(col("address"), self.address_schema).getField("addressRegion").alias("addressRegion"),
-            from_json(col("address"), self.address_schema).getField("postalCode").alias("postalCode"),
-            col("ingestionDatetime")
-        )
+        if self.df:
+            self.df = self.df.select(
+                col("id"),
+                col("name"),
+                from_json(col("address"), self.address_schema).getField("streetAddress").alias("streetAddress"),
+                from_json(col("address"), self.address_schema).getField("addressLocality").alias("addressLocality"),
+                from_json(col("address"), self.address_schema).getField("addressRegion").alias("addressRegion"),
+                from_json(col("address"), self.address_schema).getField("postalCode").alias("postalCode"),
+                col("ingestionDatetime")
+            )
 
 
 class ObservationDataProcessor(BaseProcessor):
@@ -129,16 +140,17 @@ class ObservationDataProcessor(BaseProcessor):
             StructField("unitCode", StringType()),
             StructField("value", DoubleType()),
             StructField("qualityControl", StringType())
-        ]) 
-        self.df = self.df.select(
-            col("timestamp").alias("observationTime"),
-            col("station").substr(-5, 5).alias("stationId"),
-            from_json(col("elevation"), self.elevation_schema).getField("value").alias("elevationInMeter"),
-            from_json(col("temperature"), self.general_schema).getField("value").alias("tempInDegC"),
-            from_json(col("windSpeed"), self.general_schema).getField("value").alias("windSpeedInKmpH"),
-            from_json(col("relativeHumidity"), self.general_schema).getField("value").alias("relHumidityInPct"),
-            col("ingestionDatetime")
-        )
+        ])
+        if self.df:
+            self.df = self.df.select(
+                col("timestamp").alias("observationTime"),
+                col("station").substr(-5, 5).alias("stationId"),
+                from_json(col("elevation"), self.elevation_schema).getField("value").alias("elevationInMeter"),
+                from_json(col("temperature"), self.general_schema).getField("value").alias("tempInDegC"),
+                from_json(col("windSpeed"), self.general_schema).getField("value").alias("windSpeedInKmpH"),
+                from_json(col("relativeHumidity"), self.general_schema).getField("value").alias("relHumidityInPct"),
+                col("ingestionDatetime")
+            )
             
 
 if __name__ == "__main__":

@@ -19,10 +19,6 @@ class BaseIngestor:
         
         :param limit: The maximum number of records to retrieve (optional).
         """
-        # # If limit is not provided, defaults to 10
-        # if params.get("limit") is None:
-        #     params["limit"] = 10
-
         # Set the default parameters
         self.params = params
         self.base_url = "https://api.weather.gov/"
@@ -40,14 +36,19 @@ class BaseIngestor:
         response = requests.get(
             url = self.base_url,
             params = self.params
-            # {k:v for (k,v) in self.params.items() if v is not None},
             )
         
         # Check if the request was successful
         if response.status_code == 200:
             # Insert fetched data into self.data
-            if response.json().get('features'):
-                response_body = response.json().get('features') # If response body is a list of objects
+            
+            # if response.json().get('features'):
+            if 'features' in list(response.json().keys()):
+                if response.json().get('features') == []:
+                    logger.exception("No data to fetch")
+                    return
+                else:
+                    response_body = response.json().get('features') # If response body is a list of objects
             else:
                 response_body = [response.json()] # If response body is a single object
             
